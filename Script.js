@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .openPopup();
 
             const distance = userLocation.distanceTo(kpuLocation) / 1000; // Distance in km
-            document.getElementById('distance').innerText = "${distance.toFixed(2)} km";
+            document.getElementById('distance').innerText = `${distance.toFixed(2)} km`;
         });
     } else {
         document.getElementById('distance').innerText = 'Geolocation is not supported by your browser.';
