@@ -1,58 +1,25 @@
-// Initialize and display the map
-function initMap() {
-    // KPU Surrey Library coordinates
-    const kpuSurreyLibrary = { lat: 49.187275, lng: -122.851376 };
+document.addEventListener('DOMContentLoaded', function () {
+    const map = L.map('map').setView([49.187500, -122.849000], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
 
-    // Create map centered at current location
-    const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 15,
-        center: kpuSurreyLibrary,
-    });
+    const kpuLocation = L.latLng(49.187500, -122.849000);
+    L.marker(kpuLocation).addTo(map)
+        .bindPopup('KPU Surrey Library')
+        .openPopup();
 
-    // Try HTML5 geolocation to get user's current location
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                };
+        navigator.geolocation.getCurrentPosition(function (position) {
+            const userLocation = L.latLng(position.coords.latitude, position.coords.longitude);
+            L.marker(userLocation).addTo(map)
+                .bindPopup('Your Location')
+                .openPopup();
 
-                // Display user's location marker on the map
-                new google.maps.Marker({
-                    position: userLocation,
-                    map,
-                    title: "Your Location",
-                });
-
-                // Calculate distance to KPU Surrey Library
-                const distance = google.maps.geometry.spherical.computeDistanceBetween(
-                    new google.maps.LatLng(userLocation),
-                    new google.maps.LatLng(kpuSurreyLibrary)
-                );
-
-                // Convert distance to kilometers and update UI
-                const distanceKm = (distance / 1000).toFixed(2);
-                document.getElementById("distance").textContent = `Distance to KPU Surrey Library: ${distanceKm} km`;
-            },
-            () => {
-                handleLocationError(true, map.getCenter());
-            }
-        );
+            const distance = userLocation.distanceTo(kpuLocation) / 1000; // Distance in km
+            document.getElementById('distance').innerText = "${distance.toFixed(2)} km";
+        });
     } else {
-        // Browser doesn't support Geolocation
-        handleLocationError(false, map.getCenter());
+        document.getElementById('distance').innerText = 'Geolocation is not supported by your browser.';
     }
-}
-
-// Handle geolocation errors
-function handleLocationError(browserHasGeolocation, pos) {
-    const infoWindow = new google.maps.InfoWindow();
-    infoWindow.setPosition(pos);
-    infoWindow.setContent(
-        browserHasGeolocation ?
-            "Error: The Geolocation service failed." :
-            "Error: Your browser doesn't support geolocation."
-    );
-    infoWindow.open(map);
-}
+});
